@@ -14,6 +14,14 @@ The converter in §5 had a struct-format bug (`x` pad is valueless in Python
 `tools/pairing/make_preseed.py`, which is the reference implementation. No
 fingerprint/pairing state was modified on the device.
 
+**Optional destructive reset (2026-11-20):** an alternative to preserving the
+existing pairing/templates is to deliberately erase all 10 on-device slots
+after force-installing Synaptics driver `6.0.25.1123` in Windows, then re-enroll
+Windows Hello **first** and regenerate the preseed from the new Windows state.
+The script is `tools/verimark-erase.ps1`; the full runbook is
+`BUILD_AND_INSTALL.md` §14. This is *not* part of the normal non-destructive
+workflow below and there is no backup of erased prints.
+
 **Evidence labels:** `[S]` source-verified in a cloned repo; `[O]` offline check from cloned
 sample data; `[I]` inference from cited sources; `[U]` unverified on `047d:8054` hardware.
 
@@ -224,9 +232,10 @@ The `get_data_as_bytes()` result is the serialized form that libfprint reparses 
   TLS handshake are now **verified on this `8054` PID** by offline decryption
   plus a successful open with Windows' key. Windows Hello itself still needs a
   user-side re-check after Linux enrollment. `[I]`
-- `[U]` Windows Hello template compatibility after Linux enrollment: the
-  device already holds 9 templates and enrollment appears to add one, but a
-  real enroll+Windows re-check by the user is still pending. `[I]`
+- `[U]` Windows Hello template compatibility after *non-destructive* Linux
+  enrollment is still pending a user-side re-check; the device held 9 templates
+  initially and enrollment adds one. For a guaranteed clean state use the
+  deliberate erase-and-re-enroll runbook in `BUILD_AND_INSTALL.md` §14. `[I]`
 - `pydrv` is a lab tool and not protocol evidence; it is cited above only for
   byte layouts already mirrored in the C driver. `[S]`
 - The old owner-key experiments proved the sensor verifies the client

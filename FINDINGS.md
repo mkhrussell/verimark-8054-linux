@@ -108,9 +108,11 @@ alert). `provision_state=3` + preseeded data makes `fetch_pairing_data()` jump
 straight to `OPEN_VERIFY_SENSOR_CERTIFICATE`, so `OPEN_SEND_PAIR` is never
 reached — **Windows Hello pairing is untouched**.
 
-`tools/fp_8054` (see §5) also reports the device already holds **9 on-device
-templates** (the Windows Hello prints). Enrollment adds a template; never call
-`clear_storage` or `delete` from this workspace.
+`tools/fp_8054` (see §5) initially reported **9 on-device templates** (the
+Windows Hello prints). Enrollment adds a template; do **not** call
+`clear_storage` or `delete` incidentally — they destroy Windows templates with
+no backup. If a deliberate clean slate is wanted, use the opt-in erase runbook
+in `BUILD_AND_INSTALL.md` §14 and re-enroll **both** operating systems.
 
 ## 5. Working enroll/verify tooling (no system changes)
 

@@ -25,7 +25,8 @@ Verified on Ubuntu 26.04 LTS, kernel 6.x, `fprintd 1.94.5`,
 11. [Verification checklist](#11-verification-checklist)
 12. [Troubleshooting](#12-troubleshooting)
 13. [Uninstall / revert](#13-uninstall--revert)
-14. [File inventory](#14-file-inventory)
+14. [Factory reset: erase and re-enroll](#14-factory-reset-erase-and-re-enroll)
+15. [File inventory](#15-file-inventory)
 
 ---
 
@@ -34,9 +35,13 @@ Verified on Ubuntu 26.04 LTS, kernel 6.x, `fprintd 1.94.5`,
 These are hard constraints learned the hard way. Violating them can destroy your
 Windows Hello fingerprints.
 
-1. **Never run `clear_storage` / `fprintd` with a device lacking `STORAGE_LIST`,
-   and never set `SYNATLSMOC_DELETE_ALL_TEMPLATES=1`.** The sensor has **10
-   slots**. Windows uses some of them. There is no backup.
+1. **Never *accidentally* wipe the template store.** Do not rely on
+   `clear_storage`, fprintd's first-enrollment cleanup, or
+   `SYNATLSMOC_DELETE_ALL_TEMPLATES=1` — all are blunt and can destroy the
+   Windows fingerprints. The sensor has **10 slots** and no backup. If you
+   genuinely want a clean slate, use the deliberate, informed procedure in
+   [§14 Factory reset](#14-factory-reset-erase-and-re-enroll), then re-enroll
+   **both** operating systems.
 2. **Never let the sensor PAIR from Linux without the preseed.** A fresh PAIR
    overwrites the Windows pairing. Every tool here injects the Windows-derived
    pairing data through `fp_device_set_persistent_data()` before opening.
@@ -448,7 +453,8 @@ blob and regenerate the preseed. Do not enroll until `test_open` succeeds.
 
 **`VCS_RESULT_DB_FULL` on enroll.**
 All 10 slots are used. Remove only Linux-owned templates with `delete-linux`
-(highest slot first), never Windows ones.
+(highest slot first), never Windows ones. If the store is entirely stale or you
+want a clean start, use [§14](#14-factory-reset-erase-and-re-enroll) instead.
 
 **fprintd reports a different device name.**
 `Synaptics Tudor Match-In-Sensor` is our fork. Any other name means
@@ -477,14 +483,114 @@ and on-device prints are never touched. The locally built library stays in
 
 ---
 
-## 14. File inventory
+## 14. Factory reset: erase and re-enroll
+
+Use this only when you deliberately want to throw away **all** fingerprints on
+the sensor — e.g. the store is full of stale templates you cannot identify, or
+you want both operating systems to start from a clean slate.
+
+This is more predictable than relying on libfprint's `clear_storage` or the
+`SYNATLSMOC_DELETE_ALL_TEMPLATES` debug switch. It uses the vendor's own
+`EraseDatabase` IOCTL, discovered by disassembling `CBiometricDevice::
+OnEraseDatabase` in `synaWudfBioUsb123.dll`, and it requires an intentional,
+confirmed action in Windows. It still deletes every template; it is not a
+backup or a repair operation.
+
+### 14.1 Prerequisites
+
+- The official Synaptics driver **6.0.25.1123** must be bound to the sensor.
+  Windows may refuse to install it automatically; force it:
+  1. Extract `Kensington-123_v6_0_25_1123.zip` (not shipped in this repo —
+     proprietary Synaptics DLLs; obtain it from the vendor/support archive).
+  2. Device Manager → **Biometric devices** → right-click the reader →
+     **Update driver** → *Browse my computer* → *Let me pick* → **Have Disk** →
+     point at the extracted `synaWudfBioUsbUwpOne.inf`.
+  3. Reboot if asked. Confirm the version is `6.0.25.1123` in Driver properties.
+
+  Hardware IDs handled by that package: `VID_047D&PID_8054` and
+  `VID_06CB&PID_00D6`.
+
+- The script prints the detected driver and refuses to run on an untested
+  version unless you pass `-Force`.
+
+### 14.2 Erase
+
+Run in an **Administrator PowerShell**:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\tools\verimark-erase.ps1
+```
+
+It will:
+
+1. find the biometric device interface,
+2. stop the Windows Biometric Service (`WbioSrvc`),
+3. send IOCTL `0x442028` (`EraseDatabase`),
+4. restart `WbioSrvc` in a `finally` block.
+
+Confirm with `YES` when prompted. Then:
+
+```text
+Unplug the key, wait 5 seconds, plug it back in.
+```
+
+All 10 template slots are now empty. **This does not create a backup.**
+
+### 14.3 Re-enroll Windows first
+
+In Windows: **Settings → Accounts → Sign-in options → Fingerprint → Add**.
+Enroll the fingers you want Windows Hello to use. Verify Hello works.
+
+Windows may establish a new pairing during this step. If it does, your existing
+Linux preseed is stale and must be regenerated — assume this is the case.
+
+### 14.4 Re-enroll Ubuntu
+
+Back in Linux, refresh the pairing key from the freshly enrolled Windows state:
+
+```bash
+export WINROOT=/run/media/$USER/Win11Pro
+
+# re-extract the DPAPI blob from Windows (see §6.1), then:
+python3 tools/pairing/offline_decrypt.py "$WINROOT" /tmp/8054-dpapi.bin
+python3 tools/pairing/make_preseed.py Windows/plain.bin Windows/8054-preseed.bin
+chmod 600 Windows/8054-preseed.bin
+
+LD_LIBRARY_PATH=build/libfprint ./tools/pairing/test_open Windows/8054-preseed.bin
+```
+
+Do not continue until `test_open` reports `OPEN SUCCEEDED`. Then install the new
+preseed and enroll:
+
+```bash
+sudo bash tools/install_ubuntu.sh          # refreshes /etc/fprint/8054-preseed.bin
+LD_LIBRARY_PATH=build/libfprint ./tools/fp_8054 Windows/8054-preseed.bin list
+fprintd-enroll -f left-index-finger "$USER"
+fprintd-verify -f left-index-finger "$USER"
+```
+
+`list` should now show only the Windows templates you just enrolled. If any
+Linux-owned template survived, remove it with `delete-linux [slot]` first.
+
+### 14.5 Confirm both sides
+
+- `fprintd-verify` → `verify-match`
+- `sudo -k && sudo true` → fingerprint accepted
+- reboot into Windows → Windows Hello still accepts the enrolled fingers
+
+Keep the previous preseed file until the new one is confirmed working.
+
+---
+
+## 15. File inventory
 
 | Path | Committed to GitHub? | Notes |
 | --- | --- | --- |
-| `tools/*.c`, `tools/*.sh`, `tools/pairing/*.py`, `*.ps1` | yes | our modifications |
+| `tools/*.c`, `tools/*.sh`, `tools/pairing/*.py`, `*.ps1`, `tools/verimark-erase.ps1` | yes | our modifications |
 | `docs/`, `FINDINGS.md`, `BUILD_AND_INSTALL.md` | yes | documentation |
 | `reference/libfprint-vojtapl` | no | upstream fork, pinned commit |
 | `reference/impacket` | no | upstream library |
+| `Kensington-123_v6_0_25_1123.zip` | **NO** | proprietary Synaptics DLLs — obtain from vendor |
 | `Windows/*` | **NO** | private keys / registry exports |
 | `build/*` | no | build output |
 | `*.print`, `*.bin`, `*.so`, compiled tools | no | generated / private |

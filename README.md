@@ -37,6 +37,10 @@ Windows registry blob ──offline DPAPI──▶ preseed ─┬─▶ tools/fp
 - **[docs/windows-pairing-migration.md](docs/windows-pairing-migration.md)** —
   pairing-key capture, DPAPI/TagVal format, preseed recipe.
 
+Need a clean slate instead of preserving the existing pairing? See
+**[BUILD_AND_INSTALL.md §14](BUILD_AND_INSTALL.md#14-factory-reset-erase-and-re-enroll)**
+for the optional, destructive erase-and-re-enroll runbook.
+
 ## Contents
 
 ```
@@ -45,8 +49,13 @@ tools/
   preseed_shim.c       LD_PRELOAD injection into fprintd
   install_ubuntu.sh    non-destructive system integration
   uninstall_ubuntu.sh  full revert
+  verimark-erase.ps1   optional: vendor IOCTL to erase ALL on-device templates
   pairing/             Windows extraction + offline DPAPI tools
 ```
+
+The official Synaptics driver package (`Kensington-123_v6_0_25_1123.zip`,
+driver 6.0.25.1123) is **not** included — it contains proprietary DLLs. Obtain
+it from the vendor and force-install it before using the erase script.
 
 ## Quick start (summary only — see the full guide)
 
