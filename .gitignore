@@ -1,0 +1,28 @@
+# Private key material / captured Windows data — NEVER commit
+Windows/
+*.bin
+*.print
+*.reg
+pairing-fields.json
+plain.bin
+
+# Build output and compiled binaries
+build/
+*.o
+*.so
+tools/fp_8054
+tools/list_devices
+tools/probe_version
+tools/pairing/test_open
+
+# Python / editor noise
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.log
+*~
+*.swp
+
+# Upstream reference repositories (clone separately per BUILD_AND_INSTALL.md)
+reference/
