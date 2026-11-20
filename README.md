@@ -53,9 +53,14 @@ tools/
   pairing/             Windows extraction + offline DPAPI tools
 ```
 
-The official Synaptics driver package (`Kensington-123_v6_0_25_1123.zip`,
-driver 6.0.25.1123) is **not** included — it contains proprietary DLLs. Obtain
-it from the vendor and force-install it before using the erase script.
+The official Synaptics driver package (driver 6.0.25.1123) is **not** included
+— it contains proprietary DLLs. Download it from
+[Kensington](https://www.kensington.com/siteassets/software-support/verimark/2026/kensington-123_v6_0_25_1123_signed_arm64_uwp_x64_inf_1775684104.zip)
+and force-install it before using the erase script.
+
+`tools/verimark-erase.ps1` comes from
+[Dragonstone787/verimark-it-reset](https://github.com/Dragonstone787/verimark-it-reset)
+and is included with attribution.
 
 ## Quick start (summary only — see the full guide)
 

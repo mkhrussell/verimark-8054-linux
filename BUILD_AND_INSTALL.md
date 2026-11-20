@@ -496,12 +496,20 @@ OnEraseDatabase` in `synaWudfBioUsb123.dll`, and it requires an intentional,
 confirmed action in Windows. It still deletes every template; it is not a
 backup or a repair operation.
 
+`tools/verimark-erase.ps1` is imported from
+[Dragonstone787/verimark-it-reset](https://github.com/Dragonstone787/verimark-it-reset)
+with attribution; the logic is unchanged from upstream. The upstream repository
+had no `LICENSE` file when checked on 2026-11-20, so review its terms before
+redistributing the script.
+
 ### 14.1 Prerequisites
 
 - The official Synaptics driver **6.0.25.1123** must be bound to the sensor.
   Windows may refuse to install it automatically; force it:
-  1. Extract `Kensington-123_v6_0_25_1123.zip` (not shipped in this repo —
-     proprietary Synaptics DLLs; obtain it from the vendor/support archive).
+  1. Download [Kensington's official driver package](https://www.kensington.com/siteassets/software-support/verimark/2026/kensington-123_v6_0_25_1123_signed_arm64_uwp_x64_inf_1775684104.zip)
+     (downloads as `kensington-123_v6_0_25_1123_signed_arm64_uwp_x64_inf_1775684104.zip`;
+     referred to below as `Kensington-123_v6_0_25_1123.zip`). It is **not**
+     shipped in this repo because it contains proprietary Synaptics DLLs.
   2. Device Manager → **Biometric devices** → right-click the reader →
      **Update driver** → *Browse my computer* → *Let me pick* → **Have Disk** →
      point at the extracted `synaWudfBioUsbUwpOne.inf`.
@@ -607,3 +615,5 @@ the same license for consistency. See `COPYING`.
 - https://github.com/SShadowS/verimark-linux-driver — clean-room sibling-driver protocol map
 - https://github.com/jedbillyb/linux-fingerprint-drivers — device support index
 - https://github.com/fortra/impacket — DPAPI/hive parsing
+- https://github.com/Dragonstone787/verimark-it-reset — source of `verimark-erase.ps1`
+- https://www.kensington.com/siteassets/software-support/verimark/2026/kensington-123_v6_0_25_1123_signed_arm64_uwp_x64_inf_1775684104.zip — official driver 6.0.25.1123

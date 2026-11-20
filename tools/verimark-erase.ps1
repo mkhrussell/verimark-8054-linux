@@ -12,6 +12,10 @@
 
     Unofficial. Use at your own risk. This deletes EVERY fingerprint stored on the key.
 
+.NOTES
+    Source: https://github.com/Dragonstone787/verimark-it-reset
+    Imported with attribution; the logic is unchanged from the upstream script.
+
 .PARAMETER Force
     Skip the confirmation prompt and the driver version check.
 
