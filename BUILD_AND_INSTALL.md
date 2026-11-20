@@ -502,6 +502,12 @@ with attribution; the logic is unchanged from upstream. The upstream repository
 had no `LICENSE` file when checked on 2026-11-20, so review its terms before
 redistributing the script.
 
+If Windows still manages the reader, prefer the non-destructive vendor route:
+**Settings → Accounts → Sign-in options → Fingerprint → Remove** (Kensington's
+[VeriMark IT Setup Guide](https://www.kensington.com/software/verimark-setup/verimark-it-setup-guide/)
+FAQ confirms this). The erase script is for the case where stale templates
+survive a Windows reinstall or Windows Hello can no longer remove them.
+
 ### 14.1 Prerequisites
 
 - The official Synaptics driver **6.0.25.1123** must be bound to the sensor.
@@ -616,4 +622,5 @@ the same license for consistency. See `COPYING`.
 - https://github.com/jedbillyb/linux-fingerprint-drivers — device support index
 - https://github.com/fortra/impacket — DPAPI/hive parsing
 - https://github.com/Dragonstone787/verimark-it-reset — source of `verimark-erase.ps1`
+- https://www.kensington.com/software/verimark-setup/verimark-it-setup-guide/ — official VeriMark IT setup guide and manual driver install page
 - https://www.kensington.com/siteassets/software-support/verimark/2026/kensington-123_v6_0_25_1123_signed_arm64_uwp_x64_inf_1775684104.zip — official driver 6.0.25.1123

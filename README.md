@@ -54,9 +54,10 @@ tools/
 ```
 
 The official Synaptics driver package (driver 6.0.25.1123) is **not** included
-— it contains proprietary DLLs. Download it from
-[Kensington](https://www.kensington.com/siteassets/software-support/verimark/2026/kensington-123_v6_0_25_1123_signed_arm64_uwp_x64_inf_1775684104.zip)
-and force-install it before using the erase script.
+— it contains proprietary DLLs. See Kensington's
+[VeriMark IT Setup Guide](https://www.kensington.com/software/verimark-setup/verimark-it-setup-guide/)
+or download the [signed driver package](https://www.kensington.com/siteassets/software-support/verimark/2026/kensington-123_v6_0_25_1123_signed_arm64_uwp_x64_inf_1775684104.zip)
+directly, then force-install it before using the erase script.
 
 `tools/verimark-erase.ps1` comes from
 [Dragonstone787/verimark-it-reset](https://github.com/Dragonstone787/verimark-it-reset)

@@ -20,9 +20,9 @@ after force-installing Synaptics driver `6.0.25.1123` in Windows, then re-enroll
 Windows Hello **first** and regenerate the preseed from the new Windows state.
 The script is `tools/verimark-erase.ps1`, imported with attribution from
 https://github.com/Dragonstone787/verimark-it-reset; the full runbook is
-`BUILD_AND_INSTALL.md` §14, including the official Kensington driver download.
-This is *not* part of the normal non-destructive workflow below and there is no
-backup of erased prints.
+`BUILD_AND_INSTALL.md` §14, including Kensington's setup guide and official
+driver download. This is *not* part of the normal non-destructive workflow below
+and there is no backup of erased prints.
 
 **Evidence labels:** `[S]` source-verified in a cloned repo; `[O]` offline check from cloned
 sample data; `[I]` inference from cited sources; `[U]` unverified on `047d:8054` hardware.
